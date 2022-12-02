@@ -1,21 +1,45 @@
 <script>
     import SideLeading from "./icons/SideLeading.svelte";
     import { Pane, Splitpanes } from "svelte-splitpanes";
+    import { afterUpdate, onMount } from "svelte";
 
     let sidebarWidth = 30;
-    $: editorWidth = 100 - sidebarWidth;
+    $: editorWidth = document.body.clientWidth - sidebarWidth;
 
     function resized(e) {
         sidebarWidth = e.detail[0].size;
     }
 
+    onMount(() => {
+        // window.addEventListener('resize', function() {
+        //     setWidth();
+        // });
+    });
+
+    afterUpdate(() => setWidth());
+
+    function setWidth() {
+        let sidebar = getSidebar();
+        sidebarWidth = sidebar.clientWidth;
+        sidebar.setAttribute("style", "width: " + sidebarWidth + "px");
+        getEditor().setAttribute(
+            "style",
+            "width: " + (document.body.clientWidth - sidebarWidth) + "px"
+        );
+    }
+
+    function getEditor() {
+        return getSidebar().nextElementSibling.nextElementSibling;
+    }
+
+    function getSidebar() {
+        return document.getElementsByClassName("root__panel")[0];
+    }
+
     function toggleSidebar(e) {
-        let sidebar = document.getElementsByClassName("root__panel")[0];
-        let isOpen = sidebar.classList.contains("sidebar-close");
-            sidebar.nextElementSibling.nextElementSibling.removeAttribute(
-                "style"
-            );
-        if (isOpen) {
+        let sidebar = getSidebar();
+        getEditor().removeAttribute("style");
+        if (sidebar.classList.contains("sidebar-close")) {
             // open
             toggleSidebarSplitter(sidebar, true);
             sidebar.classList.remove("sidebar-close");
@@ -23,7 +47,7 @@
             let timer = setTimeout(() => {
                 sidebar.nextElementSibling.nextElementSibling.setAttribute(
                     "style",
-                    "width: " + editorWidth + "%"
+                    "width: " + (document.body.clientWidth - sidebarWidth) + "px"
                 );
                 sidebar.classList.add("min-w-[217px]");
                 sidebar.classList.remove("sidebar-open");
@@ -76,8 +100,8 @@
         >
             <!-- Sidebar View Start -->
             <Pane
-                class={"min-w-[217px] w-[300px] root__panel resize-none"}
-                size={sidebarWidth}
+                class={"min-w-[217px] w-[300px] root__panel"}
+                size={30}
             >
                 <div class="pt-[39px] w-full h-full select-none">flex 2</div>
             </Pane>
@@ -86,6 +110,7 @@
             <!-- Editor View Start -->
             <Pane
                 class="min-w-[50%] max-w-full pt-[39px] select-none dark:bg-[#292A2F] bg-[#FFFFFF]"
+                size={70}
                 maxSize={100}
             >
                 <span
@@ -138,7 +163,7 @@
 
     @keyframes sidebar-slide {
         to {
-            width: 0%;
+            width: 0px;
         }
     }
 
