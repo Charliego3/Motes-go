@@ -2,7 +2,9 @@
     import SideLeading from "./icons/SideLeading.svelte";
     import { Pane, Splitpanes } from "svelte-splitpanes";
 
-    let sidebarWidth = 30;
+    const defaultWidth = 30;
+    let sidebarWidth = defaultWidth;
+    let sidebarOpened = true;
     $: editorWidth = 100 - sidebarWidth;
 
     function resized(e) {
@@ -12,9 +14,7 @@
     function toggleSidebar(e) {
         let sidebar = document.getElementsByClassName("root__panel")[0];
         let isOpen = sidebar.classList.contains("sidebar-close");
-            sidebar.nextElementSibling.nextElementSibling.removeAttribute(
-                "style"
-            );
+        sidebar.nextElementSibling.nextElementSibling.removeAttribute("style");
         if (isOpen) {
             // open
             toggleSidebarSplitter(sidebar, true);
@@ -25,19 +25,21 @@
                     "style",
                     "width: " + editorWidth + "%"
                 );
-                sidebar.classList.add("min-w-[217px]");
+                // sidebar.classList.add("min-w-[217px]");
                 sidebar.classList.remove("sidebar-open");
                 clearTimeout(timer);
             }, 200);
+            sidebarOpened = true;
         } else {
             // close sidebar
-            sidebar.classList.remove("min-w-[217px]");
+            // sidebar.classList.remove("min-w-[217px]");
             sidebar.classList.remove("sidebar-open");
             sidebar.classList.add("sidebar-close");
             let timer = setTimeout(() => {
                 toggleSidebarSplitter(sidebar, false);
                 clearTimeout(timer);
             }, 200);
+            sidebarOpened = false;
         }
     }
 
@@ -55,13 +57,16 @@
     <!-- Toolbar View Start -->
     <div
         id="toolbar"
-        class="absolute top-0 pl-[81px] h-[39px] content-center 
-    flex gap-2 items-center z-50 w-full justify-between border-b border-solid border-[#C7C7C8] dark:border-[#565557]"
+        class="absolute top-0 h-[39px] content-center 
+    flex gap-2 items-center z-50 w-full justify-between border-b border-solid border-[#C7C7C8] dark:border-[#565557]
+    "
     >
-        <SideLeading on:click={toggleSidebar} />
-        <div class="flex">
-            <SideLeading />
-            <SideLeading />
+        <div style="width: {sidebarOpened ? sidebarWidth : defaultWidth}%;" class="pl-[81px] pr-[10px] flex justify-between">
+            <SideLeading on:click={toggleSidebar} />
+            <div class="flex">
+                <SideLeading />
+                <SideLeading />
+            </div>
         </div>
     </div>
     <!-- Toolbar View Ended -->
@@ -72,12 +77,14 @@
             class="text-black dark:text-[#ffffff]"
             horizontal={false}
             theme="root-theme"
-            on:resized={resized}
+            on:resize={resized}
         >
             <!-- Sidebar View Start -->
             <Pane
-                class={"min-w-[217px] w-[300px] root__panel resize-none"}
+                class={"w-[300px] root__panel resize-none"}
                 size={sidebarWidth}
+                minSize={20}
+                maxSize={50}
             >
                 <div class="pt-[39px] w-full h-full select-none">flex 2</div>
             </Pane>
@@ -118,16 +125,14 @@
         animation-name: sidebar-slide;
         animation-duration: 0.2s;
         animation-fill-mode: forwards;
-        animation-timing-function: ease-in;
-        animation-direction: normal;
+        animation-timing-function: linear;
     }
 
     .sidebar-open {
         animation-name: sidebar-slide-open;
         animation-duration: 0.2s;
         animation-fill-mode: forwards;
-        animation-timing-function: ease-in;
-        animation-direction: normal;
+        animation-timing-function: linear;
     }
 
     @keyframes sidebar-slide-open {
