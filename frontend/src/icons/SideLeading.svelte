@@ -4,7 +4,7 @@
     style="--wails-draggable:no-drag"
     on:click
 >
-    <div class="w-[19px] h-[18px] overflow-hidden">
+    <div class="w-[20px] h-[18px] overflow-hidden">
         <svg
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"

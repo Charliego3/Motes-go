@@ -15,31 +15,35 @@
         let sidebar = document.getElementsByClassName("root__panel")[0];
         let isOpen = sidebar.classList.contains("sidebar-close");
         sidebar.nextElementSibling.nextElementSibling.removeAttribute("style");
+        let leading = document.getElementById('sidebarLeading');
         if (isOpen) {
             // open
+            sidebarOpened = true;
             toggleSidebarSplitter(sidebar, true);
             sidebar.classList.remove("sidebar-close");
             sidebar.classList.add("sidebar-open");
+            leading.classList.remove("sidebar-close");
+            leading.classList.add('sidebar-open');
             let timer = setTimeout(() => {
                 sidebar.nextElementSibling.nextElementSibling.setAttribute(
                     "style",
                     "width: " + editorWidth + "%"
                 );
-                // sidebar.classList.add("min-w-[217px]");
                 sidebar.classList.remove("sidebar-open");
+                leading.classList.remove("sidebar-open");
                 clearTimeout(timer);
             }, 200);
-            sidebarOpened = true;
         } else {
             // close sidebar
-            // sidebar.classList.remove("min-w-[217px]");
+            sidebarOpened = false;
             sidebar.classList.remove("sidebar-open");
             sidebar.classList.add("sidebar-close");
+            leading.classList.remove("sidebar-open");
+            leading.classList.add("sidebar-close");
             let timer = setTimeout(() => {
                 toggleSidebarSplitter(sidebar, false);
                 clearTimeout(timer);
             }, 200);
-            sidebarOpened = false;
         }
     }
 
@@ -57,16 +61,16 @@
     <!-- Toolbar View Start -->
     <div
         id="toolbar"
-        class="absolute top-0 h-[39px] content-center 
-    flex gap-2 items-center z-50 w-full justify-between border-b border-solid border-[#C7C7C8] dark:border-[#565557]
+        class="absolute top-0 h-[39px] 
+    flex gap-2 items-center z-50 w-full border-b border-solid border-[#C7C7C8] dark:border-[#565557]
     "
     >
-        <div style="width: {sidebarOpened ? sidebarWidth : defaultWidth}%;" class="pl-[81px] pr-[10px] flex justify-between">
+        <div id="sidebarLeading" style="width: {sidebarOpened ? sidebarWidth : 0}%;" class="pl-[81px] pr-[35px]">
             <SideLeading on:click={toggleSidebar} />
-            <div class="flex">
-                <SideLeading />
-                <SideLeading />
-            </div>
+        </div>
+        <div class="flex justify-between w-full pr-[10px]" style="{sidebarOpened ? 'width: ' + sidebarWidth + '%' : ''}"> 
+            <span style="--wails-draggable:no-drag;">Editor Header</span>
+            <SideLeading />
         </div>
     </div>
     <!-- Toolbar View Ended -->
@@ -92,7 +96,7 @@
 
             <!-- Editor View Start -->
             <Pane
-                class="min-w-[50%] max-w-full pt-[39px] select-none dark:bg-[#292A2F] bg-[#FFFFFF]"
+                class="min-w-[50%] pt-[39px] max-w-full select-none dark:bg-[#292A2F] bg-[#FFFFFF]"
                 maxSize={100}
             >
                 <span
@@ -125,14 +129,14 @@
         animation-name: sidebar-slide;
         animation-duration: 0.2s;
         animation-fill-mode: forwards;
-        animation-timing-function: linear;
+        animation-timing-function: ease-in;
     }
 
     .sidebar-open {
         animation-name: sidebar-slide-open;
         animation-duration: 0.2s;
         animation-fill-mode: forwards;
-        animation-timing-function: linear;
+        animation-timing-function: ease-in;
     }
 
     @keyframes sidebar-slide-open {
