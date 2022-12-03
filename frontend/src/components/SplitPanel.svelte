@@ -1,8 +1,20 @@
 <script>
-    import SideLeading from "./icons/SideLeading.svelte";
+    import SideLeading from "../icons/SideLeading.svelte";
 
     export let sidebarWidth = 300;
     export let unit = "px";
+    // let sidebarOpened = true;
+    // let rightToolbarWidth = document.body.clientWidth - sidebarWidth;
+    window.addEventListener("resize", function () {
+        // rightToolbarWidth = document.body.clientWidth - sidebarWidth;
+        // console.log(document.body.clientWidth, rightToolbarWidth);
+        // document
+        //     .getElementById("toolbar")
+        //     .setAttribute(
+        //         "style",
+        //         "width: " + (document.body.clientWidth - sidebarWidth) + "px"
+        //     );
+    });
     function toggleSidebar() {
         let sidebar = document.getElementById("sidebar");
         let toolbar = document.getElementById("toolbar");
@@ -13,7 +25,9 @@
             sidebar.classList.add("sidebar-open");
             toolbar.classList.remove("toolbar-close");
             toolbar.classList.add("toolbar-open");
+            // sidebarOpened = true;
         } else {
+            // sidebarOpened = false;
             sidebar.classList.remove("sidebar-open");
             sidebar.classList.add("sidebar-close");
             toolbar.classList.remove("toolbar-open");
