@@ -1,24 +1,68 @@
 <script>
     import SideLeading from "./icons/SideLeading.svelte";
+    import { onMount } from "svelte";
 
     export let sidebarWidth = 300;
+    export let sidebarMinWidth = 200;
+    export let sidebarMaxWidth;
+
+    onMount(() => {
+        const splitter = document.getElementById('splitter');
+        function dragable(width) {
+            if (width <= sidebarMinWidth) {
+                return false;
+            }
+            if ((sidebarMaxWidth && width >= sidebarMaxWidth) || (width >= document.body.clientWidth / 2)) {
+                return false;
+            }
+            return true;
+        }
+
+        function mousemoving(e) {
+            let width = e.pageX;
+            if (!dragable(width)) {
+                return
+            }
+            e.stopPropagation();
+            e.preventDefault();
+            const sidebar = document.getElementById("sidebar");
+            sidebarWidth = width;
+            sidebar.setAttribute('style', 'width: ' + width + 'px;');
+        }
+
+        splitter.addEventListener('mousedown', function(e) {
+            document.getElementById('content').classList.replace('select-text', 'select-none');
+            document.getElementById('title').classList.replace('select-text', 'select-none');
+            document.addEventListener('mousemove', mousemoving);
+        });
+        document.addEventListener('mouseup', function() {
+            document.getElementById('content').classList.replace('select-none', 'select-text');
+            document.getElementById('title').classList.replace('select-none', 'select-text');
+            document.removeEventListener('mousemove', mousemoving);
+        });
+    });
+
     function toggleSidebar() {
-        let sidebar = document.getElementById("sidebar");
-        let toolbar = document.getElementById("toolbar");
-        let splitter = document.getElementById('splitter');
+        const sidebar = document.getElementById("sidebar");
+        const toolbar = document.getElementById("toolbar");
+        const splitter = document.getElementById('splitter');
         if (sidebar.classList.contains("sidebar-close")) {
-            splitter.removeAttribute('style');
+            splitter.classList.remove('hidden');
             sidebar.classList.remove("sidebar-close");
             sidebar.classList.add("sidebar-open");
             toolbar.classList.remove("toolbar-close");
             toolbar.classList.add("toolbar-open");
+            let timer = setTimeout(() => {
+                toolbar.classList.remove("toolbar-open");
+                clearTimeout(timer);
+            }, 201);
         } else {
             sidebar.classList.remove("sidebar-open");
             sidebar.classList.add("sidebar-close");
             toolbar.classList.remove("toolbar-open");
             toolbar.classList.add("toolbar-close");
             let timer = setTimeout(() => {
-                splitter.setAttribute('style', 'display: none;');
+                splitter.classList.add('hidden');
                 clearTimeout(timer);
             }, 208);
         }
@@ -27,22 +71,23 @@
 
 <div class="w-screen h-screen flex select-none">
     <div id="sidebar" class="h-full w-[{sidebarWidth}px]">
-        <div class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50 w-[{sidebarWidth}px]">
+        <div id="sidetool" class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50" style="width: {sidebarWidth}px">
             <SideLeading on:click={toggleSidebar} />
         </div>
-        <div class="pt-[39px] h-full dark:text-white overflow-hidden" style="--wails-draggable:no-drag">
-            <p class="">Sidebar</p>
-            <SideLeading on:click={toggleSidebar} />
+        <div class="h-full w-full dark:text-white overflow-hidden flex flex-col" style="--wails-draggable:no-drag">
+            <div class="flex-none h-[40px] border-b-[1px] border-solid dark:border-[#565557]"></div>
+            <div class="overflow-auto">
+            </div>
         </div>
     </div>
-    <div id="splitter" class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-black dark:bg-[#1D1D1F]"/>
+    <div id="splitter" class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-black dark:bg-[#1D1D1F]" style="--wails-draggable:no-drag"/>
     <div class="grow h-full">
         <div style="width: calc(100% - {sidebarWidth}px)" id="toolbar"
-            class="h-[39px] pl-[10px] pr-[11px] w-full flex items-center justify-between absolute right-0 top-0 z-50">
-            <strong class="dark:text-white select-text" style="--wails-draggable:no-drag">Editor Header</strong>
+            class="h-[39px] pl-[10px] pr-[11px] flex items-center justify-between absolute right-0 top-0 z-50">
+            <strong id="title" class="dark:text-white select-text" style="--wails-draggable:no-drag">Editor Header</strong>
             <SideLeading />
         </div>
-        <div class="mt-[39px] border-t-[1px] border-solid border-black dark:text-white">
+        <div id="content" class="mt-[39px] h-full w-full border-t-[1px] border-solid border-black dark:text-white select-text" style="--wails-draggable:no-drag">
             Content View
         </div>
     </div>
@@ -103,7 +148,6 @@
             left: 0;
             top: 0;
             opacity: 0;
-            background-color: rgba(255, 0, 0, 0.3);
             z-index: 1;
         }
         &:hover:before {
@@ -115,13 +159,6 @@
             right: -5px;
             height: 100%;
             cursor: row-resize;
-        }
-
-        &.splitter-vertical:before {
-            top: -5px;
-            bottom: -5px;
-            width: 100%;
-            cursor: col-resize;
         }
     }
 </style>
