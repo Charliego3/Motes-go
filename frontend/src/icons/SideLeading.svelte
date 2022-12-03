@@ -1,6 +1,6 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-    class="hover:dark:bg-[#3f3f3f] hover:bg-[#BCBDC0] hover:bg-opacity-50 hover:rounded pt-[1px] w-[28px] h-[21px] flex justify-center content-center"
+    class="hover:dark:bg-[#3f3f3f] hover:bg-[#BCBDC0] hover:bg-opacity-50 hover:rounded pt-[2px] w-[28px] h-[21px] flex justify-center content-center"
     style="--wails-draggable:no-drag"
     on:click
 >

@@ -2,7 +2,6 @@
     import SideLeading from "./icons/SideLeading.svelte";
 
     export let sidebarWidth = 300;
-    export let unit = "px";
     function toggleSidebar() {
         let sidebar = document.getElementById("sidebar");
         let toolbar = document.getElementById("toolbar");
@@ -27,32 +26,23 @@
 </script>
 
 <div class="w-screen h-screen flex select-none">
-    <div id="sidebar" class="h-full w-[{sidebarWidth}{unit}]">
-        <div
-            class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50"
-        >
+    <div id="sidebar" class="h-full w-[{sidebarWidth}px]">
+        <div class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50 w-[{sidebarWidth}px]">
             <SideLeading on:click={toggleSidebar} />
         </div>
-        <div class="pt-[39px] h-full dark:text-white bg-orange-500 overflow-hidden">
-            <p class="bg-sky-700">Sidebar</p>
+        <div class="pt-[39px] h-full dark:text-white overflow-hidden" style="--wails-draggable:no-drag">
+            <p class="">Sidebar</p>
             <SideLeading on:click={toggleSidebar} />
         </div>
     </div>
-    <div id="splitter"
-        class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-black dark:bg-[#1D1D1F]"
-    />
+    <div id="splitter" class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-black dark:bg-[#1D1D1F]"/>
     <div class="grow h-full">
-        <div
-            style="width: calc(100% - {sidebarWidth}{unit})"
-            id="toolbar"
-            class="h-[39px] pl-[10px] pr-[11px] w-full flex items-center justify-between absolute right-0 top-0"
-        >
+        <div style="width: calc(100% - {sidebarWidth}px)" id="toolbar"
+            class="h-[39px] pl-[10px] pr-[11px] w-full flex items-center justify-between absolute right-0 top-0 z-50">
             <strong class="dark:text-white select-text" style="--wails-draggable:no-drag">Editor Header</strong>
             <SideLeading />
         </div>
-        <div
-            class="mt-[39px] border-t-[1px] border-solid border-black dark:text-white"
-        >
+        <div class="mt-[39px] border-t-[1px] border-solid border-black dark:text-white">
             Content View
         </div>
     </div>
