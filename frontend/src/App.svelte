@@ -75,19 +75,19 @@
             <SideLeading on:click={toggleSidebar} />
         </div>
         <div class="h-full w-full dark:text-white overflow-hidden flex flex-col" style="--wails-draggable:no-drag">
-            <div class="flex-none h-[40px] border-b-[1px] border-solid dark:border-[#565557]"></div>
+            <div class="flex-none h-[40px] border-b-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20"></div>
             <div class="overflow-auto">
             </div>
         </div>
     </div>
-    <div id="splitter" class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-black dark:bg-[#1D1D1F]" style="--wails-draggable:no-drag"/>
+    <div id="splitter" class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-gray-400 bg-opacity-40 dark:bg-black dark:bg-opacity-40" style="--wails-draggable:no-drag"/>
     <div class="grow h-full">
         <div style="width: calc(100% - {sidebarWidth}px)" id="toolbar"
             class="h-[39px] pl-[10px] pr-[11px] flex items-center justify-between absolute right-0 top-0 z-50">
             <strong id="title" class="dark:text-white select-text" style="--wails-draggable:no-drag">Editor Header</strong>
             <SideLeading />
         </div>
-        <div id="content" class="mt-[39px] h-full w-full border-t-[1px] border-solid border-black dark:text-white select-text" style="--wails-draggable:no-drag">
+        <div id="content" class="mt-[39px] h-full w-full border-t-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20 dark:text-white select-text" style="--wails-draggable:no-drag">
             Content View
         </div>
     </div>
