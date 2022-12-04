@@ -70,13 +70,16 @@
 </script>
 
 <div class="w-screen h-screen flex select-none">
-    <div id="sidebar" class="h-full w-[{sidebarWidth}px]">
+    <div id="sidebar" class="h-full w-[{sidebarWidth}px]" style="width: {sidebarWidth}px">
         <div id="sidetool" class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50" style="width: {sidebarWidth}px">
             <SideLeading on:click={toggleSidebar} />
         </div>
         <div class="h-full w-full dark:text-white overflow-hidden flex flex-col" style="--wails-draggable:no-drag">
             <div class="flex-none h-[40px] border-b-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20"></div>
-            <div class="overflow-auto">
+            <div class="overflow-auto h-full">
+                <div class="p-2">
+                    hahah
+                </div>
             </div>
         </div>
     </div>
