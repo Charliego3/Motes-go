@@ -1,13 +1,19 @@
 <script>
-    import SideLeading from "./icons/SideLeading.svelte";
-    import { cubicInOut } from 'svelte/easing';
-    import { tweened } from 'svelte/motion';
-    import { onMount } from "svelte";
+    import LeadingBtn from "./LeadingBtn.svelte";
+    import {cubicInOut} from 'svelte/easing';
+    import {tweened} from 'svelte/motion';
+    import {onMount} from "svelte";
+    import {FetchFileTree, Open} from '../wailsjs/go/main/App.js';
+    import FileTree from "./FileTree.svelte";
+    import TrailingBtn from "./TrailingBtn.svelte";
+    import {EditorView, basicSetup} from "codemirror";
+    import {EditorState} from "@codemirror/state";
+    import {markdown} from "@codemirror/lang-markdown";
 
     export let sidebarWidth = 300;
     export let sidebarMinWidth = 200;
-    export let sidebarMaxWidth;
-    let draging = false;
+    export let sidebarMaxWidth = null;
+    let dragging = false;
     const motionSidebarWidth = tweened(sidebarWidth, {
         duration: 200,
         easing: cubicInOut,
@@ -18,17 +24,67 @@
         editorWidth = 110;
     }
 
+    let tree= [];
+    let editor;
+    let editorView;
     onMount(() => {
-        document.addEventListener('mouseup', function() {
-            draging = false;
-            document.removeEventListener('mousemove', mousemoving);
+        FetchFileTree().then((files) => {
+            tree = files;
+        }).catch((err) => { 
+            console.log(err);
+        })
+
+        // let state = EditorState.create({
+        //     doc: editorContent,
+        // });
+        editorView = new EditorView({
+            extensions: [basicSetup, markdown(), EditorView.theme({
+                "&": {
+                    // color: "white",
+                    backgroundColor: "transparent",
+                    outline: "none",
+                },
+                ".ͼ1.cm-editor.cm-focused": {
+                    outline: "none"
+                },
+                ".cm-content": {
+                    caretColor: "#0e9"
+                },
+                "&.cm-focused .cm-cursor": {
+                    borderLeftColor: "#0e9"
+                },
+                "&.cm-focused .cm-selectionBackground, ::selection": {
+                    backgroundColor: "#074"
+                },
+                ".cm-gutters": {
+                    backgroundColor: "transparent",
+                    color: "#ddd",
+                    borderRight: "1px solid gray",
+                },
+                ".cm-lineNumbers": {
+                    color: "gray",
+                    userSelect: "none",
+                },
+                ".cm-activeLineGutter": {
+                    // backgroundColor: "#006cc3",
+                    backgroundColor: "transparent",
+                    color: "white"
+                },
+                ".cm-activeLine": {
+                    backgroundColor: "gray",
+                    opacity: ".4"
+                }
+            })],
+            parent: editor,
+        });
+
+        document.addEventListener('mouseup', function () {
+            dragging = false;
+            document.removeEventListener('mousemove', mouseMoving);
         });
     });
 
-    /**
-     * @param {{ pageX: any; stopPropagation: () => void; preventDefault: () => void; }} e
-     */
-    function mousemoving(e) {
+    function mouseMoving(e) {
         let width = e.pageX;
         if (width <= sidebarMinWidth) {
             return;
@@ -36,7 +92,6 @@
         if ((sidebarMaxWidth && width >= sidebarMaxWidth) || (width >= document.body.clientWidth / 2)) {
             return;
         }
-        draging = true;
         e.stopPropagation();
         e.preventDefault();
         motionSidebarWidth.set(width, {duration: 0});
@@ -50,36 +105,88 @@
             motionSidebarWidth.set(0);
         }
     }
+
+    let selectedNode;
+    let selectedItem;
+    let editorHeader = '';
+    function chooseFile(node, isDir) {
+        if (!!selectedNode) {
+            selectedNode.classList.remove('selected');
+        }
+        if (!!selectedItem) {
+            selectedItem.classList.remove('selected-folder');
+            selectedItem.classList.add('unselected-folder');
+        }
+        selectedNode = node;
+        selectedNode.classList.add('selected');
+
+        let path;
+        if (isDir) {
+            path = selectedNode.getElementsByTagName('path')[1];
+        } else {
+            path = selectedNode.getElementsByTagName('path')[0];
+        }
+        console.log(isDir, path);
+        selectedItem = path;
+        selectedItem.classList.remove('unselected-folder');
+        selectedItem.classList.add('selected-folder');
+    }
+
+    let editorContent = '';
+    function open(name, fpath) {
+        editorHeader = name;
+        console.log(name, fpath);
+        Open(fpath).then(content => {
+            // editorContent = content;
+            let transaction = editorView.state.update({
+                changes: {from: 0, insert: content}
+            });
+            editorView.dispatch(transaction);
+        }).catch(err => {
+            console.log("open file error", err);
+        })
+    }
 </script>
 
 <div class="w-screen h-screen flex select-none">
-    <div id="sidebar" class="h-full" style="width: {$motionSidebarWidth}px">
-        <div id="sidetool" class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50" style="width: {$motionSidebarWidth}px">
-            <SideLeading on:click={toggleSidebar} />
+    <div id="sidebar" class="h-full" style="width: {$motionSidebarWidth}px;">
+        <div id="sidetool" class="h-[39px] min-w-[110px] absolute flex items-center pl-[81px] z-50"
+             style="width: {$motionSidebarWidth}px">
+            <LeadingBtn on:click={toggleSidebar}/>
         </div>
-        <div class="h-full w-full dark:text-white overflow-hidden flex flex-col" style="--wails-draggable:no-drag">
-            <div class="flex-none h-[40px] border-b-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20"></div>
-            <div class="overflow-auto h-full">
-                <div class="p-2">
-                    hahah
-                </div>
+        <div class="h-full w-full dark:text-white flex flex-col" style="--wails-draggable:no-drag;">
+            <div class="flex-none h-[39px] border-b-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20"></div>
+            <div class="overflow-y-scroll overflow-x-hidden whitespace-nowrap py-[10px] pl-[10px] scrollbar"
+                 style="padding-right: {$motionSidebarWidth - 50 <= 0 ? 0 : 10}px;width: {$motionSidebarWidth}px;">
+                <FileTree {open} children={tree} onClick={chooseFile} expanded/>
             </div>
         </div>
     </div>
-    <div id="splitter" on:mousedown={() => document.addEventListener('mousemove', mousemoving)} class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-gray-400 bg-opacity-40 dark:bg-black dark:bg-opacity-40" style="--wails-draggable:no-drag"/>
+    <div id="splitter" on:mousedown={() => {dragging = true;document.addEventListener('mousemove', mouseMoving)}}
+         class:hidden={$motionSidebarWidth == 0}
+         class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-gray-400 bg-opacity-30 dark:bg-gray-500 dark:bg-opacity-40"
+         style="--wails-draggable:no-drag"></div>
     <div class="grow h-full">
-        <div style="width: calc(100% - {editorWidth}px)" id="toolbar"
-            class="h-[39px] pl-[10px] pr-[11px] flex items-center justify-between absolute right-0 top-0 z-50">
-            <strong id="title" class:select-none={draging} class="dark:text-white select-text" style="--wails-draggable:no-drag">Editor Header</strong>
-            <SideLeading />
+        <div style='width: calc(100% - {editorWidth+1}px);' id="toolbar"
+             class="h-[39px] pl-[10px] pr-[11px] flex items-center justify-between absolute right-0 top-0 z-50">
+            <strong id="title" class:select-none={dragging} class="dark:text-white select-text"
+                    style="--wails-draggable:no-drag;">{editorHeader}</strong>
+            <div class="flex-none"><TrailingBtn/></div>
         </div>
-        <div id="content" class:select-none={draging} class="mt-[39px] h-full w-full border-t-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20 dark:text-white select-text" style="--wails-draggable:no-drag">
-            Content View
+        <div id="content" class:select-none={dragging}
+             class="flex-grow-0 h-full w-full flex flex-col dark:text-white select-text"
+             style="--wails-draggable:no-drag">
+            <div class="flex-none h-[39px] border-b-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20"></div>
+            <div bind:this={editor} class="w-full h-full bg-transparent overflow-auto"></div>
         </div>
     </div>
 </div>
 
 <style lang="scss">
+    :global(.scrollbar) {
+        scrollbar-3dlight-color: transparent;
+    }
+
     .select-none {
         user-select: none;
     }
@@ -92,8 +199,10 @@
             left: 0;
             top: 0;
             opacity: 0;
+            // background-color: aquamarine;
             z-index: 1;
         }
+
         &:hover:before {
             opacity: 1;
         }

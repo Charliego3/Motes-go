@@ -1,5 +1,5 @@
 <script>
-    import SideLeading from "../icons/SideLeading.svelte";
+    import SideLeading from "../LeadingBtn.svelte";
 
     export let sidebarWidth = 300;
     export let unit = "px";

@@ -1,5 +1,5 @@
 <script>
-    import SideLeading from "../icons/SideLeading.svelte";
+    import SideLeading from "../LeadingBtn.svelte";
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();

@@ -1,5 +1,5 @@
 <script>
-    import SideLeading from "../icons/SideLeading.svelte";
+    import SideLeading from "../LeadingBtn.svelte";
     import { Pane, Splitpanes } from "svelte-splitpanes";
     import Toolbar from "./Toolbar.svelte";
 
