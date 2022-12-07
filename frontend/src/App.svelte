@@ -9,6 +9,12 @@
     import {EditorView, basicSetup} from "codemirror";
     import {EditorState} from "@codemirror/state";
     import {markdown} from "@codemirror/lang-markdown";
+    import {languages} from "@codemirror/language-data";
+    import SvelteMarkdown from 'svelte-markdown';
+    import Markdown from 'svelte-exmarkdown';
+    import { gfmPlugin } from 'svelte-exmarkdown/gfm';
+    import { marked } from 'marked';
+    // import {hljs} from 'highlight.js';
 
     export let sidebarWidth = 300;
     export let sidebarMinWidth = 200;
@@ -38,12 +44,14 @@
         //     doc: editorContent,
         // });
         editorView = new EditorView({
-            extensions: [basicSetup, markdown(), EditorView.theme({
+            extensions: [basicSetup, markdown({codeLanguages: languages}), EditorView.lineWrapping, EditorView.theme({
                 "&": {
                     // color: "white",
                     backgroundColor: "transparent",
-                    outline: "none",
+                    outline: "none !important",
+                    // width: "calc(100% - "+editorWidth+"px)",
                 },
+                ".cm-scroller": {overflow: "auto"},
                 ".ͼ1.cm-editor.cm-focused": {
                     outline: "none"
                 },
@@ -51,29 +59,31 @@
                     caretColor: "#0e9"
                 },
                 "&.cm-focused .cm-cursor": {
-                    borderLeftColor: "#0e9"
+                    // borderLeftColor: "#0e9"
+                    width: "5px"
                 },
                 "&.cm-focused .cm-selectionBackground, ::selection": {
-                    backgroundColor: "#074"
+                    backgroundColor: "dodgerblue"
                 },
                 ".cm-gutters": {
                     backgroundColor: "transparent",
                     color: "#ddd",
-                    borderRight: "1px solid gray",
+                    borderRight: "0px",
                 },
                 ".cm-lineNumbers": {
                     color: "gray",
-                    userSelect: "none",
+                    userSelect: "none !important",
                 },
                 ".cm-activeLineGutter": {
                     // backgroundColor: "#006cc3",
                     backgroundColor: "transparent",
-                    color: "white"
+                    color: "#3283E4"
                 },
                 ".cm-activeLine": {
-                    backgroundColor: "gray",
-                    opacity: ".4"
-                }
+                    // color: "white",
+                    backgroundColor: "#99999945",
+                    borderRadius: "3px",
+                },
             })],
             parent: editor,
         });
@@ -139,13 +149,39 @@
         Open(fpath).then(content => {
             // editorContent = content;
             let transaction = editorView.state.update({
-                changes: {from: 0, insert: content}
+                changes: {from: 0, to: editorView.state.doc.length, insert: content}
             });
             editorView.dispatch(transaction);
+            editorContent = marked.parse(content);
         }).catch(err => {
             console.log("open file error", err);
         })
     }
+
+    // const tokens = marked.lexer(editorContent);
+
+    // marked.walkTokens(tokens, token=> {
+    //     if (token.type === 'strong') {
+    //         // token.type = 'em'
+    //     }
+    //     token.raw = token.raw.toUpperCase()
+    // })
+
+    // marked.setOptions({
+    // renderer: new marked.Renderer(),
+    //     highlight: function(code, lang) {
+    //         // const hljs = require('highlight.js');
+    //         const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    //         return hljs.highlight(code, { language }).value;
+    //     },
+    //     langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class.
+    //     pedantic: false,
+    //     gfm: true,
+    //     breaks: false,
+    //     sanitize: false,
+    //     smartypants: false,
+    //     xhtml: false
+    // });
 </script>
 
 <div class="w-screen h-screen flex select-none">
@@ -177,7 +213,11 @@
              class="flex-grow-0 h-full w-full flex flex-col dark:text-white select-text"
              style="--wails-draggable:no-drag">
             <div class="flex-none h-[39px] border-b-[1px] border-solid border-gray-400 border-opacity-40 dark:border-opacity-20"></div>
-            <div bind:this={editor} class="w-full h-full bg-transparent overflow-auto"></div>
+            <div class="w-full h-full bg-transparent overflow-auto">
+                <div bind:this={editor}></div>
+                <!-- <div><Markdown md={editorContent} plugins={[gfmPlugin]}/></div> -->
+                <!-- <div>{@html editorContent}</div> -->
+            </div>
         </div>
     </div>
 </div>

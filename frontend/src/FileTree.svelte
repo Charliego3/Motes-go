@@ -45,7 +45,7 @@
          style="font-size: 80%;">
         {@html padding}
         {#if !!children}
-            <div class="flex-none" style="width: 15px;height: 17px;animation-duration: 1s; animation-name: {expanded ? 'rotate-open' : 'rotate-close'};" 
+            <div class="flex-none" style="transform: rotate({expanded ? 90 : 0}deg);width: 15px;height: 17px;animation-duration: 1s; animation-name: {expanded ? 'rotate-open' : 'rotate-close'};" 
                  on:click={dbClick}><IoIosArrowForward/></div>
         {:else}
             <div class="flex-none" style="width: 15px;"></div>
