@@ -1,7 +1,15 @@
 <script>
     import IoIosArrowForward from 'svelte-icons/io/IoIosArrowForward.svelte'
     import { slide } from 'svelte/transition';
+    import {tweened} from "svelte/motion";
+    import {linear} from "svelte/easing";
 
+    const iconRotate = tweened(0, {
+        duration: 200,
+        easing: linear,
+    });
+
+    // export let iconRotate = null;
     export let name = null;
     export let path = name;
     export let isDir = false;
@@ -29,6 +37,12 @@
     function dbClick() {
         if (isDir && !!children) {
             expanded = !expanded;
+
+            if (expanded) {
+                iconRotate.set(90);
+            } else {
+                iconRotate.set(0);
+            }
             return;
         }
 
@@ -45,7 +59,7 @@
          style="font-size: 80%;">
         {@html padding}
         {#if !!children}
-            <div class="flex-none" style="transform: rotate({expanded ? 90 : 0}deg);width: 15px;height: 17px;animation-duration: 1s; animation-name: {expanded ? 'rotate-open' : 'rotate-close'};" 
+            <div class="flex-none" style="width: 15px;height: 17px;transform: rotate({$iconRotate}deg);"
                  on:click={dbClick}><IoIosArrowForward/></div>
         {:else}
             <div class="flex-none" style="width: 15px;"></div>

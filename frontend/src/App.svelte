@@ -7,14 +7,8 @@
     import FileTree from "./FileTree.svelte";
     import TrailingBtn from "./TrailingBtn.svelte";
     import {EditorView, basicSetup} from "codemirror";
-    import {EditorState} from "@codemirror/state";
     import {markdown} from "@codemirror/lang-markdown";
     import {languages} from "@codemirror/language-data";
-    import SvelteMarkdown from 'svelte-markdown';
-    import Markdown from 'svelte-exmarkdown';
-    import { gfmPlugin } from 'svelte-exmarkdown/gfm';
-    import { marked } from 'marked';
-    // import {hljs} from 'highlight.js';
 
     export let sidebarWidth = 300;
     export let sidebarMinWidth = 200;
@@ -152,36 +146,10 @@
                 changes: {from: 0, to: editorView.state.doc.length, insert: content}
             });
             editorView.dispatch(transaction);
-            editorContent = marked.parse(content);
         }).catch(err => {
             console.log("open file error", err);
         })
     }
-
-    // const tokens = marked.lexer(editorContent);
-
-    // marked.walkTokens(tokens, token=> {
-    //     if (token.type === 'strong') {
-    //         // token.type = 'em'
-    //     }
-    //     token.raw = token.raw.toUpperCase()
-    // })
-
-    // marked.setOptions({
-    // renderer: new marked.Renderer(),
-    //     highlight: function(code, lang) {
-    //         // const hljs = require('highlight.js');
-    //         const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-    //         return hljs.highlight(code, { language }).value;
-    //     },
-    //     langPrefix: 'hljs language-', // highlight.js css expects a top-level 'hljs' class.
-    //     pedantic: false,
-    //     gfm: true,
-    //     breaks: false,
-    //     sanitize: false,
-    //     smartypants: false,
-    //     xhtml: false
-    // });
 </script>
 
 <div class="w-screen h-screen flex select-none">
@@ -199,7 +167,7 @@
         </div>
     </div>
     <div id="splitter" on:mousedown={() => {dragging = true;document.addEventListener('mousemove', mouseMoving)}}
-         class:hidden={$motionSidebarWidth == 0}
+         class:hidden={$motionSidebarWidth === 0}
          class="splitter splitter-horizontal cursor-col-resize w-[1px] bg-gray-400 bg-opacity-30 dark:bg-gray-500 dark:bg-opacity-40"
          style="--wails-draggable:no-drag"></div>
     <div class="grow h-full">
